@@ -35,64 +35,30 @@ Fellow students have put together a guide to Windows set-up for the project [her
 3. Compile: `cmake .. && make`
 4. Run it: `./pid`. 
 
-Tips for setting up your environment can be found [here](https://classroom.udacity.com/nanodegrees/nd013/parts/40f38239-66b6-46ec-ae68-03afd8a601c8/modules/0949fca6-b379-42af-a919-ee50aa304e6a/lessons/f758c44c-5e40-4e01-93b5-1a82aa4e044f/concepts/23d376c7-0195-4276-bdf0-e02f1f3c665d)
-
-## Editor Settings
-
-We've purposefully kept editor configuration files out of this repo in order to
-keep it as simple and environment agnostic as possible. However, we recommend
-using the following settings:
-
-* indent using spaces
-* set tab width to 2 spaces (keeps the matrices in source code aligned)
-
 ## Code Style
 
-Please (do your best to) stick to [Google's C++ style guide](https://google.github.io/styleguide/cppguide.html).
+[Google's C++ style guide](https://google.github.io/styleguide/cppguide.html).
 
 ## Project Instructions and Rubric
-
-Note: regardless of the changes you make, your project must be buildable using
-cmake and make!
 
 More information is only accessible by people who are already enrolled in Term 2
 of CarND. If you are enrolled, see [the project page](https://classroom.udacity.com/nanodegrees/nd013/parts/40f38239-66b6-46ec-ae68-03afd8a601c8/modules/f1820894-8322-4bb3-81aa-b26b3c6dcbaf/lessons/e8235395-22dd-4b87-88e0-d108c5e5bbf4/concepts/6a4d8d42-6a04-4aa6-b284-1697c0fd6562)
 for instructions and the project rubric.
 
-## Hints!
+## Rubric
 
-* You don't have to follow this directory structure, but if you do, your work
-  will span all of the .cpp files here. Keep an eye out for TODOs.
+1. Describe the effect each of the P, I, D components had in your implementation.
 
-## Call for IDE Profiles Pull Requests
+P - Proportional component accounts the instantaneuos error. This error the difference between the ideal and actual value. The P gain will help steer the vehicle back in the direction of the ideal position on the track.
 
-Help your fellow students!
+I - Integral component is responsible for decreasing the error over time. This integral error accumulates over time to decide how aggresive the correction should be based on the cummulative value of previous errors.
 
-We decided to create Makefiles with cmake to keep this project as platform
-agnostic as possible. Similarly, we omitted IDE profiles in order to we ensure
-that students don't feel pressured to use one IDE or another.
+D - Derivative component will account for the future errors. Based on the errors current rate of change, the differential portion of the controller will determine how quickly the vehicle is moving away from or towards the ideal position. This will help the vehicle react more aggressively as the vehicle moves futher from the ideal position and visa-versa.
 
-However! I'd love to help people get up and running with their IDEs of choice.
-If you've created a profile for an IDE that you think other students would
-appreciate, we'd love to have you add the requisite profile files and
-instructions to ide_profiles/. For example if you wanted to add a VS Code
-profile, you'd add:
+The proportional component was responsible for keeping the oscillations steady. The differential component helps decrease the oscillations. The integral component
 
-* /ide_profiles/vscode/.vscode
-* /ide_profiles/vscode/README.md
+2. Describe how the final hyperparameters were chosen.
 
-The README should explain what the profile does, how to take advantage of it,
-and how to install it.
+I started with the values from the lesson and then chose to manually implement the twiddle algorithm. By adjusting these values "by hand" it ultimately gave me a better understanding of how each component of PID controller affects the output. I first set a limiter on the throttle because I noticed the oscillations increase as the vehicle sped up. This allowed me to tune the controller for a specific speed range. I also decreased the throttle inversely proportionally to the angle. So as the steering angle hit a threshold, the vehicle would slow down to decrease the amplitude of the oscilaltions.
 
-Frankly, I've never been involved in a project with multiple IDE profiles
-before. I believe the best way to handle this would be to keep them out of the
-repo root to avoid clutter. My expectation is that most profiles will include
-instructions to copy files to a new location to get picked up by the IDE, but
-that's just a guess.
-
-One last note here: regardless of the IDE used, every submitted project must
-still be compilable with cmake and make./
-
-## How to write a README
-A well written README file can enhance your project and portfolio.  Develop your abilities to create professional README files by completing [this free course](https://www.udacity.com/course/writing-readmes--ud777).
-
+After setting a throttle limiter, I began adjusting the PID parameters. Since I had set a throttle limiter I started from scratch and set all the parameters to zero. I started by increasing the "P" until the response was a relatively steady oscillation around the first turn. Then, I increased the "D" gain until the oscillations got smaller. I introduced the "I" value last as it is used as the fine-tuning parameter. I continued to adjust these values in this order by increasing/decreasing their values by a similar factor of the twiddle algorithm (1.1 or 0.9). I ended up settling on P = 0.08, I = 0.009, and D = 2.2.
